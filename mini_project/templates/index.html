@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REST API Studio - GET, POST, PUT, PATCH, DELETE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <h1>REST API Studio</h1>
+            </div>
+            <p class="subtitle">Basic HTTP Methods Representation & Interactive Testing Console</p>
+        </div>
+    </header>
+
+    <main class="main-layout">
+        <!-- LEFT COLUMN: REST API Methods Tester -->
+        <section class="api-methods-section">
+            <div class="section-title">
+                <h2>HTTP REST Endpoints</h2>
+                <span class="badge count-badge">5 Methods</span>
+            </div>
+
+            <div class="cards-grid">
+                <!-- 1. GET ALL PRODUCTS -->
+                <div class="method-card card-get">
+                    <div class="card-header">
+                        <span class="http-badge badge-get">GET</span>
+                        <span class="endpoint-path">/api/products/</span>
+                    </div>
+                    <p class="card-desc">Fetch complete list of products from SQLite DB.</p>
+                    <button class="btn btn-get" onclick="executeGetAll()">
+                        <span>▶</span> Execute GET (List)
+                    </button>
+                </div>
+
+                <!-- 2. GET SINGLE PRODUCT -->
+                <div class="method-card card-get">
+                    <div class="card-header">
+                        <span class="http-badge badge-get">GET</span>
+                        <span class="endpoint-path">/api/products/&lt;id&gt;/</span>
+                    </div>
+                    <p class="card-desc">Fetch details of a single product by ID.</p>
+                    <div class="input-inline">
+                        <input type="number" id="get-id" placeholder="Product ID (e.g. 1)" value="1">
+                        <button class="btn btn-get" onclick="executeGetSingle()">
+                            <span>▶</span> GET Item
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. POST (CREATE) -->
+                <div class="method-card card-post">
+                    <div class="card-header">
+                        <span class="http-badge badge-post">POST</span>
+                        <span class="endpoint-path">/api/products/</span>
+                    </div>
+                    <p class="card-desc">Create a new product record in database.</p>
+                    <div class="form-group">
+                        <input type="text" id="post-name" placeholder="Product Name (e.g. Wireless Mouse)">
+                        <input type="number" id="post-price" placeholder="Price (₹)">
+                        <textarea id="post-desc" rows="2" placeholder="Description..."></textarea>
+                    </div>
+                    <button class="btn btn-post" onclick="executePost()">
+                        <span>➕</span> Execute POST (Create)
+                    </button>
+                </div>
+
+                <!-- 4. PUT (FULL UPDATE) -->
+                <div class="method-card card-put">
+                    <div class="card-header">
+                        <span class="http-badge badge-put">PUT</span>
+                        <span class="endpoint-path">/api/products/&lt;id&gt;/</span>
+                    </div>
+                    <p class="card-desc">Full update. Requires replacing <strong>all</strong> fields.</p>
+                    <div class="form-group">
+                        <input type="number" id="put-id" placeholder="Product ID to update">
+                        <input type="text" id="put-name" placeholder="New Name">
+                        <input type="number" id="put-price" placeholder="New Price (₹)">
+                        <textarea id="put-desc" rows="2" placeholder="New Description..."></textarea>
+                    </div>
+                    <button class="btn btn-put" onclick="executePut()">
+                        <span>🔄</span> Execute PUT (Full Update)
+                    </button>
+                </div>
+
+                <!-- 5. PATCH (PARTIAL UPDATE) -->
+                <div class="method-card card-patch">
+                    <div class="card-header">
+                        <span class="http-badge badge-patch">PATCH</span>
+                        <span class="endpoint-path">/api/products/&lt;id&gt;/</span>
+                    </div>
+                    <p class="card-desc">Partial update. Modify only fields you provide.</p>
+                    <div class="form-group">
+                        <input type="number" id="patch-id" placeholder="Product ID to patch">
+                        <input type="text" id="patch-name" placeholder="Name (optional)">
+                        <input type="number" id="patch-price" placeholder="Price (optional)">
+                        <textarea id="patch-desc" rows="2" placeholder="Description (optional)"></textarea>
+                    </div>
+                    <button class="btn btn-patch" onclick="executePatch()">
+                        <span>✏️</span> Execute PATCH (Partial)
+                    </button>
+                </div>
+
+                <!-- 6. DELETE -->
+                <div class="method-card card-delete">
+                    <div class="card-header">
+                        <span class="http-badge badge-delete">DELETE</span>
+                        <span class="endpoint-path">/api/products/&lt;id&gt;/</span>
+                    </div>
+                    <p class="card-desc">Remove a product permanently by ID.</p>
+                    <div class="input-inline">
+                        <input type="number" id="delete-id" placeholder="Product ID to delete">
+                        <button class="btn btn-delete" onclick="executeDelete()">
+                            <span>🗑️</span> Execute DELETE
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: LIVE INSPECTOR & INVENTORY -->
+        <section class="inspector-section">
+            <!-- RESPONSE INSPECTOR -->
+            <div class="inspector-card">
+                <div class="inspector-header">
+                    <div class="header-left">
+                        <h3>Response Inspector</h3>
+                        <span id="response-status-badge" class="status-badge status-idle">Ready</span>
+                    </div>
+                    <div class="header-right">
+                        <span id="response-timer" class="response-time">0 ms</span>
+                    </div>
+                </div>
+
+                <div class="response-meta">
+                    <span class="meta-label">Request URL:</span>
+                    <code id="response-url" class="meta-url">None executed yet</code>
+                </div>
+
+                <div class="response-body-wrapper">
+                    <pre><code id="json-output">// Execute any method on the left to inspect the live response JSON payload...</code></pre>
+                </div>
+            </div>
+
+            <!-- LIVE DATABASE INVENTORY -->
+            <div class="inventory-card">
+                <div class="inventory-header">
+                    <h3>Database Inventory</h3>
+                    <button class="refresh-btn" onclick="executeGetAll()">↻ Refresh</button>
+                </div>
+                <div id="product-grid" class="products-container">
+                    <!-- Dynamic Product Cards populated by JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="{% static 'script.js' %}"></script>
+</body>
+</html>
